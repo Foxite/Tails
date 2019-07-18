@@ -3,6 +3,7 @@ package uk.kihira.tails.client.gui.controls;
 import com.google.common.base.Strings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.glfw.GLFW;
@@ -99,8 +100,8 @@ public class NumberInput extends Gui implements IControl<Float>, ITooltip {
         float inc = increment;
 
         long mainWindowHandle = Minecraft.getInstance().mainWindow.getHandle();
-        if (GLFW.glfwGetKey(mainWindowHandle, GLFW.GLFW_KEY_LEFT_SHIFT) == GLFW.GLFW_PRESS) inc *= SHIFT_MOD;
-        else if (GLFW.glfwGetKey(mainWindowHandle, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS) inc *= CTRL_MOD;
+        if (GuiScreen.isShiftKeyDown()) inc *= SHIFT_MOD;
+        else if (GuiScreen.isCtrlKeyDown()) inc *= CTRL_MOD;
 
         // Increase
         if (GuiBaseScreen.isMouseOver(mouseX, mouseY, xPos + numInput.width, yPos, btnWidth, btnHeight)) {
