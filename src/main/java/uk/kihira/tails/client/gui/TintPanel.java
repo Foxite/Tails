@@ -10,6 +10,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import uk.kihira.tails.client.PartRegistry;
@@ -19,6 +20,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 @OnlyIn(Dist.CLIENT)
@@ -49,6 +51,7 @@ public class TintPanel extends Panel<GuiEditor> implements GuiHSBSlider.IHSBSlid
     private GuiIconButton tintReset;
     private GuiIconButton colourPicker;
     private IntBuffer pixelBuffer;
+    private long previousCursor;
     private boolean selectingColour = false;
     private int editPaneTop;
 
@@ -176,7 +179,8 @@ public class TintPanel extends Panel<GuiEditor> implements GuiHSBSlider.IHSBSlid
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
         if (selectingColour && mouseButton == 0) {
-            currTintColour = getColourAtPoint(mouseX, mouseY); //Ignore alpha
+            currTintColour = getColourAtPoint((int) mouseX, (int) mouseY); //Ignore alpha
+                            // GLFW Mouse position to pixel position conversion, aka double to int
             setSelectingColour(false);
             updateTints(true);
             return true;
@@ -223,7 +227,7 @@ public class TintPanel extends Panel<GuiEditor> implements GuiHSBSlider.IHSBSlid
         return tint;
     }
 
-    private int getColourAtPoint(double x, double y) {
+    private int getColourAtPoint(int x, int y) {
         int[] pixelData;
         int pixels = 1;
 
@@ -236,7 +240,8 @@ public class TintPanel extends Panel<GuiEditor> implements GuiHSBSlider.IHSBSlid
         GlStateManager.pixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
         pixelBuffer.clear();
 
-        GlStateManager.readPixels(x, y, 1, 1, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, pixelBuffer);
+        //GlStateManager.readPixels(x, y, 1, 1, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, pixelBuffer);
+        GL11.glReadPixels((int) x, (int) y, 1, 1, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, pixelBuffer);
 
         pixelBuffer.get(pixelData);
 
@@ -252,20 +257,44 @@ public class TintPanel extends Panel<GuiEditor> implements GuiHSBSlider.IHSBSlid
                 int[] pixelData;
                 int pixels = 16 * 16;
                 pixelData = new int[pixels];
-                IntBuffer buffer = IntBuffer.wrap(bufferedImage.getRGB(GuiIconButton.Icons.EYEDROPPER.u, GuiIconButton.Icons.EYEDROPPER.v + 16, 16, 16, pixelData, 0, 16));
-                Cursor cursor = new Cursor(16, 16, 0, 15, 1, buffer, null);
+                pixelData = bufferedImage.getRGB(GuiIconButton.Icons.EYEDROPPER.u, GuiIconButton.Icons.EYEDROPPER.v + 16, 16, 16, pixelData, 0, 16);
 
-                Mouse.setNativeCursor(cursor);
+                // Since 1.13 we can no longer set the cursor using a Java Cursor object, instead we have to create a GLFWImage and give it LWJGL.
+                // https://gamedev.stackexchange.com/a/124395
+                // Convert image to RGBA format
+                ByteBuffer byteBuffer = BufferUtils.createByteBuffer(1024);
+                for (int x = 0; x < 16; x++) {
+                    for (int y = 0; y < 16; y++) {
+                        int pixel = pixelData[y * 16 + x];
+                        byteBuffer.put((byte) ((pixel >> 24) & 0xFF)); // alpha
+                        byteBuffer.put((byte) ((pixel >> 16) & 0xFF)); // red
+                        byteBuffer.put((byte) ((pixel >> 8)  & 0xFF)); // green
+                        byteBuffer.put((byte)  (pixel        & 0xFF)); // blue
+                    }
+                }
+                byteBuffer.flip();
 
-            } catch (LWJGLException | IOException e) {
+                GLFWImage cursor = GLFWImage.create()
+                        .width(16)
+                        .height(16)
+                        .pixels(byteBuffer);
+
+                int hotspotX = 3; // TODO find out the actual hotspot position
+                int hotspotY = 6; // The hotspot is the pixel where the cursor is "pointing", relative to the image itself.
+
+                long pickerCursor = GLFW.glfwCreateCursor(cursor, hotspotX, hotspotY);
+
+                GLFW.glfwSetCursor(Minecraft.getInstance().mainWindow.getHandle(), pickerCursor);
+
+                // Pre 1.13 code
+                //IntBuffer buffer = IntBuffer.wrap(pixelData);
+                //Cursor cursor = new Cursor(16, 16, 0, 15, 1, buffer, null);
+                //Mouse.setNativeCursor(cursor);
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-            try {
-                Mouse.setNativeCursor(null);
-            } catch (LWJGLException e) {
-                e.printStackTrace();
-            }
+            GLFW.glfwSetCursor(Minecraft.getInstance().mainWindow.getHandle(), GLFW.GLFW_CURSOR);
         }
     }
 

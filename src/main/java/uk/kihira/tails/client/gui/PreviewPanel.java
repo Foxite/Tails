@@ -1,7 +1,7 @@
 package uk.kihira.tails.client.gui;
 
+import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
@@ -19,7 +19,7 @@ class PreviewPanel extends Panel<GuiEditor> {
     private float yaw = 0f;
     private float pitch = 10f;
     private double prevMouseX = -1;
-    private ScaledResolution scaledRes;
+    private MainWindow mainWindow;
     private boolean doRender;
 
     PreviewPanel(GuiEditor parent, int left, int top, int right, int bottom) {
@@ -31,7 +31,7 @@ class PreviewPanel extends Panel<GuiEditor> {
         doRender = Minecraft.getInstance().gameSettings.thirdPersonView == 0;
         if (!doRender)
             return;
-        scaledRes = new ScaledResolution(this.mc);
+        mainWindow = Minecraft.getInstance().mainWindow;
         // Reset Camera
         buttons.add(new GuiIconButton(RESET_BUTTON, width - 18, 22, GuiIconButton.Icons.UNDO, I18n.format("gui.button.reset.camera")) {
             @Override
@@ -55,7 +55,7 @@ class PreviewPanel extends Panel<GuiEditor> {
         drawRect(0, 0, width, height, GuiEditor.GREY);
 
         // Player
-        drawEntity(width / 2, height / 2 + scaledRes.getScaledHeight() / 8, scaledRes.getScaledHeight() / 4, yaw, pitch, mc.player);
+        drawEntity(width / 2, height / 2 + mainWindow.getScaledHeight() / 8, mainWindow.getScaledHeight() / 4, yaw, pitch, mc.player);
         super.render(mouseX, mouseY, partialTicks);
     }
 
@@ -105,8 +105,8 @@ class PreviewPanel extends Panel<GuiEditor> {
         renderManager.setPlayerViewY(180f);
         renderManager.renderEntity(entity, 0d, 0d, 0d, 0f, 1f, false);
         RenderHelper.disableStandardItemLighting();
-        OpenGlHelper.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-        OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
+        GlStateManager.activeTexture(OpenGlHelper.GL_TEXTURE0);
+        GlStateManager.activeTexture(OpenGlHelper.GL_TEXTURE1);
 
         GlStateManager.popMatrix();
 

@@ -80,15 +80,17 @@ public class GuiHSBSlider extends GuiSlider implements ITooltip {
                 drawTexturedModalRectScaled(x + 1, y + 1, 0, srcY, 256, 20, this.width - 2, this.height - 2);
             }
 
-            this.mouseDragged(mouseX, mouseY);
+            this.mouseDragged(mouseX, mouseY, 0, 0, 0); // Should be fine, as these parameters aren't used anyway.
         }
     }
 
+    // Parameter names are guessed, no idea what p_mouseDragged_5_ is.
+    // The guesses are based on the old MouseEvent fields.
     @Override
-    public boolean mouseDragged(double p_mouseDragged_1_, double p_mouseDragged_3_, int p_mouseDragged_5_, double p_mouseDragged_6_, double p_mouseDragged_8_) {
+    public boolean mouseDragged(double x, double y, int p_mouseDragged_5_, double dx, double dy) {
         if (this.visible) {
             if (this.dragging) {
-                this.sliderValue = (par2 - (this.x + 4)) / (float)(this.width - 8);
+                this.sliderValue = (x - (this.x + 4)) / (float)(this.width - 8);
                 updateSlider();
                 if (callback != null) {
                     callback.onValueChangeHSBSlider(this, this.sliderValue);

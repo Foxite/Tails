@@ -30,7 +30,7 @@ public class Toast {
         height = this.message.size() * Minecraft.getInstance().fontRenderer.FONT_HEIGHT + 7;
     }
 
-    public void onMouseEvent(MouseEvent mouseEvent) {}
+    public void onMouseEvent(double x, double y, int button) {}
 
     public void drawToast(int mouseX, int mouseY) {
         if (this.time > 0) {

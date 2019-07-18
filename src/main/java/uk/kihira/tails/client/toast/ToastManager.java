@@ -42,10 +42,10 @@ public class ToastManager {
     }
 
     @SubscribeEvent
-    public void onMouseEvent(MouseEvent event) {
+    public void onMouseEvent(double x, double y, int button) {
         for (Toast toast : toasts) {
             if (toast.mouseOver) {
-                toast.onMouseEvent(event);
+                toast.onMouseEvent(x, y, button);
             }
         }
     }

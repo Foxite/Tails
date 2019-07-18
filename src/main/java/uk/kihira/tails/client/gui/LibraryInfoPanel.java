@@ -101,14 +101,12 @@ public class LibraryInfoPanel extends Panel<GuiEditor> {
         if (entry != null) {
             textField.drawTextField(mouseX, mouseY, partialTicks);
 
-            fontRenderer.setUnicodeFlag(true);
             fontRenderer.drawString(I18n.format("gui.library.info.created") + ":", 5, height - 40, 0xAAAAAA);
             fontRenderer.drawString(entry.data.creatorName, width - 5 - fontRenderer.getStringWidth(entry.data.creatorName), height - 40, 0xAAAAAA);
             fontRenderer.drawString(I18n.format("gui.library.info.createdate") + ":", 5, height - 32, 0xAAAAAA);
             String date = new SimpleDateFormat("dd/MM/YY").format(new Date(entry.data.creationDate));
             fontRenderer.drawString(date, width - 5 - fontRenderer.getStringWidth(date), height - 32, 0xAAAAAA);
             //fontRenderer.drawSplitString(EnumChatFormatting.ITALIC + entry.data.comment, 5, 40, width, 0xFFFFFF);
-            fontRenderer.setUnicodeFlag(false);
         }
 
         super.render(mouseX, mouseY, partialTicks);

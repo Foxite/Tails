@@ -97,8 +97,10 @@ public class NumberInput extends Gui implements IControl<Float>, ITooltip {
         }
 
         float inc = increment;
-        if (Keyboard.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT)) inc *= SHIFT_MOD;
-        else if (Keyboard.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL)) inc *= CTRL_MOD;
+
+        long mainWindowHandle = Minecraft.getInstance().mainWindow.getHandle();
+        if (GLFW.glfwGetKey(mainWindowHandle, GLFW.GLFW_KEY_LEFT_SHIFT) == GLFW.GLFW_PRESS) inc *= SHIFT_MOD;
+        else if (GLFW.glfwGetKey(mainWindowHandle, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS) inc *= CTRL_MOD;
 
         // Increase
         if (GuiBaseScreen.isMouseOver(mouseX, mouseY, xPos + numInput.width, yPos, btnWidth, btnHeight)) {
