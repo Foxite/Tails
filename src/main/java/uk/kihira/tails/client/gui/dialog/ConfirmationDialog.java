@@ -13,7 +13,7 @@ public class ConfirmationDialog<T extends GuiBase & IDialogCallback> extends Dia
 
     public ConfirmationDialog(T parent, String title, final String messageList) {
         super(parent, title, parent.width / 4, parent.height / 4, parent.width / 2, 100);
-        this.messageList = Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(messageList, (parent.width / 2) - 10);
+        this.messageList = Minecraft.getInstance().fontRenderer.listFormattedStringToWidth(messageList, (parent.width / 2) - 10);
     }
 
     @Override
@@ -24,15 +24,18 @@ public class ConfirmationDialog<T extends GuiBase & IDialogCallback> extends Dia
         buttons.add(new GuiButtonExt(1, (width / 2) + 2, height - 25, 50, 20, "Confirm"));
     }
 
+    /*
+    See comment in parent class; no longer needed?
     @Override
     protected void actionPerformed(GuiButton button) {
         super.actionPerformed(button);
         //parent.panels.remove(this); TODO CME
     }
+     */
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float p_73863_3_) {
-        super.drawScreen(mouseX, mouseY, p_73863_3_);
+    public void render(int x, int y, float p_73863_3_) {
+        super.render(x, y, p_73863_3_);
 
         for (int i = 0; i < messageList.size(); i++) {
             drawCenteredString(fontRenderer, messageList.get(i), width / 2, 17 + (i * 9), 0xFFFFFFFF);

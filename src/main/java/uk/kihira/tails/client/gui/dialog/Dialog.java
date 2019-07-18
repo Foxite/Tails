@@ -11,8 +11,6 @@ import java.io.IOException;
 public class Dialog<T extends GuiBase & IDialogCallback> extends Panel<T> {
 
     protected boolean dragging;
-    private int mouseXStart;
-    private int mouseYStart;
 
     protected String title;
 
@@ -26,13 +24,15 @@ public class Dialog<T extends GuiBase & IDialogCallback> extends Panel<T> {
         Validate.isInstanceOf(IDialogCallback.class, parent);
     }
 
+    /* Removed in 1.13. Function no longer necessary?
     @Override
     protected void actionPerformed(GuiButton button) {
         parent.buttonPressed(this, button);
     }
+     */
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float p_73863_3_) {
+    public void render(int x, int y, float p_73863_3_) {
         drawGradientRect(0, 0, width, height, 0xFF808080, 0xFF808080);
         drawGradientRect(1, 12, width - 1, height - 1, 0xFF000000, 0xFF000000);
 
@@ -40,48 +40,45 @@ public class Dialog<T extends GuiBase & IDialogCallback> extends Panel<T> {
             drawString(fontRenderer, title, 2, 2, 0xFFFFFFFF);
         }
 
-        super.drawScreen(mouseX, mouseY, p_73863_3_);
+        super.render(x, y, p_73863_3_);
     }
 
     @Override
-    public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+    public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
         //Only if they grab the top
         if (mouseButton == 0 && mouseY < 12) {
             dragging = true;
-            mouseXStart = mouseX;
-            mouseYStart = mouseY;
+            return true;
         }
         else {
-            super.mouseClicked(mouseX, mouseY, mouseButton);
+            return super.mouseClicked(mouseX, mouseY, mouseButton);
         }
     }
 
-/*    @Override
-    TODO public void mouseMovedOrUp(int mouseX, int mouseY, int mouseButton) {
-        if (dragging && mouseButton == 0) {
-            dragging = false;
-        }
-        else {
-            super.mouseMovedOrUp(mouseX, mouseY, mouseButton);
-        }
-    }*/
 
     @Override
-    public void mouseClickMove(int mouseX, int mouseY, int mouseButton, long pressTime) {
-        if (dragging) {
-            if (mouseX != mouseXStart) {
-                left -= mouseXStart - mouseX;
-                right = left + width;
-            }
-
-            if (mouseY != mouseYStart) {
-                top -= mouseYStart - mouseY;
-                bottom = top + height;
-            }
-
+    public boolean mouseReleased(double mouseX, double mouseY, int mouseButton) {
+        if (dragging && mouseButton == 0) {
+            dragging = false;
+            return true;
         }
         else {
-            super.mouseClickMove(mouseX, mouseY, mouseButton, pressTime);
+            return super.mouseReleased(mouseX, mouseY, mouseButton);
+        }
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double mouseDX, double mouseDY) {
+        if (dragging) {
+            left -= mouseDX;
+            right = left + width;
+
+            top -= mouseDY;
+            bottom = top + height;
+            return true;
+        }
+        else {
+            return super.mouseDragged(mouseX, mouseY, mouseButton, mouseDX, mouseDY);
         }
     }
 }
