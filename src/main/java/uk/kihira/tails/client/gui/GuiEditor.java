@@ -30,6 +30,7 @@ public class GuiEditor extends GuiBase
 
     TintPanel tintPanel;
     PartsPanel partsPanel;
+    OutfitPartsPanel outfitPartsPanel;
     private TransformPanel transformPanel;
     private PreviewPanel previewPanel;
     private ControlsPanel controlsPanel;
@@ -121,6 +122,13 @@ public class GuiEditor extends GuiBase
                     previewWindowRight - previewWindowEdgeOffset,
                     height - previewWindowBottom)
             );
+            /*layer1.add(outfitPartsPanel = new OutfitPartsPanel(
+                    this,
+                    0,
+                    height / 2,
+                    previewWindowEdgeOffset,
+                    height / 2 - texSelectHeight)
+            );*/
 
             libraryInfoPanel.enabled = false;
             libraryPanel.enabled = false;
@@ -134,6 +142,7 @@ public class GuiEditor extends GuiBase
             libraryPanel.resize(0, 0, previewWindowEdgeOffset, height);
             previewPanel.resize(previewWindowEdgeOffset, 0, previewWindowRight - previewWindowEdgeOffset, previewWindowBottom);
             controlsPanel.resize(previewWindowEdgeOffset, previewWindowBottom, previewWindowRight - previewWindowEdgeOffset, height - previewWindowBottom);
+            //outfitPartsPanel.resize(0, height / 2, previewWindowEdgeOffset, height / 2 - texSelectHeight);
         }
         super.initGui();
     }
@@ -184,6 +193,17 @@ public class GuiEditor extends GuiBase
     {
         outfit.parts.add(outfitPart);
         setActiveOutfitPart(outfitPart);
+    }
+
+    /**
+     * Removes an OutfitPart from the Outfit. If it is selected, it will deselect it first.
+     * @param outfitPart The part to be removed
+     */
+    void removeOutfitPart(OutfitPart outfitPart) {
+        if (currentOutfitPart == outfitPart) {
+            setActiveOutfitPart(null);
+        }
+        outfit.parts.remove(outfitPart);
     }
 
     /**

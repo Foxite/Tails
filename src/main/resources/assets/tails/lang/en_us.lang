@@ -38,6 +38,7 @@ gui.hex=Hex
 gui.texture=Texture Select
 gui.author=Author:
 tails.gui.parts=Parts
+tails.gui.outfitparts=Equipped parts
 
 tails.upload.unavailable=This feature is not yet functional!
 tails.upload.tooltip=Uploads your skin to Minecrafts skin servers (You'll need to login via Minecrafts website)
